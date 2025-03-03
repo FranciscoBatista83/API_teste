@@ -11,9 +11,13 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TransactionProductController;
 
 /*
-|---------------------------------------------------------------------------
+|--------------------------------------------------------------------------
 | Rotas Públicas
-|---------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+| Estas rotas podem ser acessadas por qualquer usuário, sem necessidade de
+| autenticação. Aqui incluímos a rota de login e a rota para realizar compras.
+|
 */
 
 // ** Tabela: Auth (Login) **
@@ -22,46 +26,47 @@ Route::post('/login', [AuthController::class, 'login']); // Realiza login
 // ** Tabela: Transações (Compras) **
 Route::post('/compras', [TransactionController::class, 'store']); // Realiza compra informando o produto
 
+
 /*
-|---------------------------------------------------------------------------
+|--------------------------------------------------------------------------
 | Rotas Protegidas (JWT)
-|---------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+|
+| Estas rotas requerem autenticação e são acessíveis apenas por usuários
+| autenticados via token. O middleware 'auth:sanctum' é utilizado para isso.
+|
 */
 
 Route::middleware('auth:sanctum')->group(function () {
 
     // ** Tabela: Gateways **
-    // Ativar/desativar gateway
+    // Ativar ou desativar um gateway
     Route::patch('/gateways/{id}/toggle', [GatewayController::class, 'toggleStatus']);
-    // Alterar prioridade do gateway
+    // Alterar a prioridade de um gateway
     Route::patch('/gateways/{id}/prioridade', [GatewayController::class, 'changePriority']);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rotas Administrativas (somente para usuários com papel de 'admin')
+    |--------------------------------------------------------------------------
+    |
+    | Essas rotas são protegidas por um middleware que verifica se o usuário tem
+    | a permissão de administrador. Apenas usuários com essa função podem acessar.
+    |
+    */
 
-    // ** Tabela: Usuários (Admin) **
     Route::middleware('role:admin')->group(function () {
+
+        // ** Tabela: Usuários (Admin) **
         Route::apiResource('/usuarios', UserController::class); // CRUD de usuários
-    });
 
-    Route::middleware('role:admin')->group(function () {
-        Route::apiResource('/usuarios', UserController::class);
-    });
-    
-
-    // ** Tabela: Produtos (Admin) **
-    Route::middleware('role:admin')->group(function () {
+        // ** Tabela: Produtos (Admin) **
         Route::apiResource('/produtos', ProductController::class); // CRUD de produtos
-
-    // Listar todos os produtos
-    Route::get('/produtos', [ProductController::class, 'index']);
-    // Exibir um produto específico
-    Route::get('/produtos/{id}', [ProductController::class, 'show']);
-    // Criar um novo produto
-    Route::post('/produtos', [ProductController::class, 'store']);
-    // Atualizar um produto existente
-    Route::put('/produtos/{id}', [ProductController::class, 'update']);
-    // Deletar um produto
-    Route::delete('/produtos/{id}', [ProductController::class, 'destroy']);
     });
+
+    // ** Tabela: Produtos (Listagem pública) **
+    Route::get('/produtos', [ProductController::class, 'index']); // Lista todos os produtos
+    Route::get('/produtos/{id}', [ProductController::class, 'show']); // Exibe um produto específico
 
     // ** Tabela: Clientes **
     Route::get('/clientes', [ClientController::class, 'index']); // Lista todos os clientes
@@ -73,20 +78,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // ** Tabela: Transações (Compras) **
     Route::get('/compras', [TransactionController::class, 'index']); // Lista todas as compras
     Route::get('/compras/{id}', [TransactionController::class, 'show']); // Detalha uma compra
-    Route::post('/compras/{id}/reembolso', [TransactionController::class, 'refund'])->middleware('role:admin'); // Reembolso (Apenas Admin)
-    // Registrar uma nova transação
-    Route::post('/compras', [TransactionController::class, 'store']);
+    Route::post('/compras/{id}/reembolso', [TransactionController::class, 'refund'])->middleware('role:admin'); // Reembolso (somente Admin)
+    Route::post('/compras', [TransactionController::class, 'store']); // Registrar uma nova transação
 
-    // Listar todos os produtos de uma transação
-    Route::get('/transacoes/{transactionId}/produtos', [TransactionProductController::class, 'index']);
-
-    // Adicionar um produto a uma transação
-    Route::post('/transacoes/{transactionId}/produtos', [TransactionProductController::class, 'store']);
-
-    // Atualizar a quantidade de um produto em uma transação
-    Route::put('/transacoes/{transactionId}/produtos/{productId}', [TransactionProductController::class, 'update']);
-
-    // Remover um produto de uma transação
-    Route::delete('/transacoes/{transactionId}/produtos/{productId}', [TransactionProductController::class, 'destroy']);
+    // ** Tabela: Transações (Produtos dentro de uma transação) **
+    Route::get('/transacoes/{transactionId}/produtos', [TransactionProductController::class, 'index']); // Lista todos os produtos de uma transação
+    Route::post('/transacoes/{transactionId}/produtos', [TransactionProductController::class, 'store']); // Adiciona um produto a uma transação
+    Route::put('/transacoes/{transactionId}/produtos/{productId}', [TransactionProductController::class, 'update']); // Atualiza a quantidade de um produto em uma transação
+    Route::delete('/transacoes/{transactionId}/produtos/{productId}', [TransactionProductController::class, 'destroy']); // Remove um produto de uma transação
 
 });
