@@ -37,7 +37,8 @@ Route::post('/compras', [TransactionController::class, 'store']); // Realiza com
 |
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+// Route::middleware('auth:sanctum')->group(function () {
+Route::group(function () {
 
     // ** Tabela: Gateways **
     // Ativar ou desativar um gateway
