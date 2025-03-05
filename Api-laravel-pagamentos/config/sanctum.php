@@ -4,6 +4,12 @@ use Laravel\Sanctum\Sanctum;
 
 return [
 
+    'api' => [
+        \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        'throttle:api',
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Stateful Domains
@@ -33,7 +39,7 @@ return [
     |
     */
 
-    'guard' => ['web'],
+    'guard' => ['api'],
 
     /*
     |--------------------------------------------------------------------------

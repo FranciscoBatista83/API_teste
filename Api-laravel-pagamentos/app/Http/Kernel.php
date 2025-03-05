@@ -32,9 +32,12 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
-        \Illuminate\Auth\Middleware\Authenticate::class, // Para autenticação JWT ou Sanctum
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \Illuminate\Auth\Middleware\Authenticate::class, // Para autenticação JWT ou Sanctum
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 
