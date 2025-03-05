@@ -49,18 +49,13 @@ class ProductController extends Controller
         // Valida os dados de entrada
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'stock' => 'required|integer|min:0'
+            'amount' => 'required|integer|min:0'
         ]);
 
         // Cria o produto
         $product = Product::create($validated);
 
-        return response()->json([
-            'message' => 'Produto criado com sucesso!',
-            'data' => $product
-        ], 201);
+        return response()->json($product, 201);
     }
 
     /**

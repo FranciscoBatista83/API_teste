@@ -38,7 +38,7 @@ Route::post('/compras', [TransactionController::class, 'store']); // Realiza com
 */
 
 // Route::middleware('auth:sanctum')->group(function () {
-Route::group(function () {
+Route::group([], function () {
 
     // ** Tabela: Gateways **
     // Ativar ou desativar um gateway
@@ -65,9 +65,14 @@ Route::group(function () {
         Route::apiResource('/produtos', ProductController::class); // CRUD de produtos
     });
 
+    Route::get('/teste', function () {
+        return response()->json(['message' => 'API está funcionando!']);
+    });
+
     // ** Tabela: Produtos (Listagem pública) **
     Route::get('/produtos', [ProductController::class, 'index']); // Lista todos os produtos
     Route::get('/produtos/{id}', [ProductController::class, 'show']); // Exibe um produto específico
+    Route::post('/produtos', [ProductController::class, 'store']); // Cria novo produto
 
     // ** Tabela: Clientes **
     Route::get('/clientes', [ClientController::class, 'index']); // Lista todos os clientes
